@@ -1,0 +1,35 @@
+# --- Node.js ---
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# --- Entorno y Credenciales ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- Builds y Salidas ---
+dist/
+build/
+out/
+.next/
+.cache/
+
+# --- IDEs y Editores ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Sistema Operativo ---
+.DS_Store
+Thumbs.db
+
+# --- Logs y Bases de Datos ---
+*.log
+*.sqlite
+*.sqlite-journal
