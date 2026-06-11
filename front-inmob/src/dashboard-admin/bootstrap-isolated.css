@@ -1,0 +1,4 @@
+/* src/dashboard-admin/bootstrap-isolated.css */
+.bootstrap-scope {
+  @import 'bootstrap/dist/css/bootstrap.min.css';
+}

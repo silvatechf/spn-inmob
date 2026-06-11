@@ -1,0 +1,25 @@
+{
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5434,
+            "driver": "PostgreSQL",
+            "name": "localhost",
+            "username": "postgres",
+            "database": "inmobiliaria_db"
+        },
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5434,
+            "driver": "PostgreSQL",
+            "name": "Inmobiliaria_DB",
+            "database": "inmobiliaria_db",
+            "username": "postgres",
+            "password": "ajh_pass"
+        }
+    ]
+}
