@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/propiedades'); // Importamos todo el objeto
+const controller = require('../controllers/propiedades');
 
-// Ahora accedemos mediante controller.nombreFuncion para evitar errores de undefined
+// --- AÑADE ESTO PARA DEPURAR ---
+console.log("¿Qué hay en el controlador?:", controller);
+// -------------------------------
+
+// Si en la consola ves "undefined" o alguna función falta, ahí está el problema.
 router.get('/', controller.getPropiedades);
 router.get('/:id', controller.getPropiedadById);
 router.post('/', controller.createPropiedad);

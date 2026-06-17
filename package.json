@@ -4,9 +4,10 @@
   "description": "Este repositorio contiene el diseño, modelado e implementación de una base de datos relacional avanzada para una plataforma de gestión inmobiliaria en España. La estructura ha sido optimizada siguiendo patrones corporativos estrictos y requerimientos metodológicos de alta seguridad física y lógica.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon api-inmob/src/app.js",
-    "seed:masivo": "node database/seederMasivo.js"
-  },
+  "start": "node api-inmob/src/app.js",
+  "dev": "nodemon api-inmob/src/app.js",
+  "seed:masivo": "node api-inmob/src/config/seederMasivo.js"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fernandurgt/UF2175_TA02_Proyecto_Estructura.git"
