@@ -1,11 +1,10 @@
-/**
- * Controlador para la gestión de propiedades inmobiliarias.
- * Versión final: Lógica de filtros encapsulada y segura.
- */
 const pool = require('../config/db');
 
 const controller = {
     getPropiedades: async (req, res) => {
+        // Obtenemos un cliente del pool y lo liberamos al terminar
+        const client = await pool.connect();
+        
         try {
             const { operacion, precio_max, barrio, search, page = 1 } = req.query;
             const limit = 9;
@@ -14,43 +13,35 @@ const controller = {
             let whereClauses = ["deleted_at IS NULL"];
             const values = [];
 
-            // 1. Filtro de búsqueda
-            if (search && search !== 'undefined' && search.trim() !== '') {
+            if (search && search.trim() !== '') {
                 values.push(`%${search}%`);
                 whereClauses.push(`titulo ILIKE $${values.length}`);
             }
 
-            if (operacion && operacion !== 'Todos los regímenes' && operacion !== 'undefined') {
-    values.push(operacion.trim());
-    // Usamos ILIKE para comparar sin importar mayúsculas/minúsculas
-    // y forzamos a texto para evitar problemas con el tipo ENUM
-    whereClauses.push(`operacion::text ILIKE $${values.length}`);
-}
+            if (operacion && operacion !== 'Todos') {
+                values.push(operacion);
+                whereClauses.push(`operacion::text ILIKE $${values.length}`);
+            }
 
-            // 3. Filtro de precio
-            if (precio_max && precio_max !== 'Cualquier rango' && precio_max !== 'undefined') {
+            if (precio_max && precio_max !== 'Cualquier') {
                 values.push(parseInt(precio_max));
                 whereClauses.push(`precio <= $${values.length}`);
             }
 
-            // 4. Filtro de barrio
-            if (barrio && barrio !== 'Todos os bairros' && barrio !== 'undefined') {
+            if (barrio && barrio !== 'Todos') {
                 values.push(barrio);
                 whereClauses.push(`barrio = $${values.length}`);
             }
 
             const whereSQL = "WHERE " + whereClauses.join(" AND ");
-            const baseQuery = `FROM inmobiliaria.vw_propiedades_detalladas ${whereSQL}`;
+            const baseQuery = `FROM vw_propiedades_detalladas ${whereSQL}`;
             
-            // Ejecutar conteo
-            const countResult = await pool.query(`SELECT COUNT(*) ${baseQuery}`, values);
+            // Usamos el cliente específico para evitar el DeprecationWarning
+            const countResult = await client.query(`SELECT COUNT(*) ${baseQuery}`, values);
             const totalRegistros = parseInt(countResult.rows[0].count);
 
-            // Ejecutar consulta con paginación
-            const dataResult = await pool.query(
-                `SELECT * ${baseQuery} ORDER BY id DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`, 
-                [...values, limit, offset]
-            );
+            const query = `SELECT * ${baseQuery} ORDER BY id DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
+            const dataResult = await client.query(query, [...values, limit, offset]);
 
             res.json({
                 meta: { 
@@ -61,12 +52,13 @@ const controller = {
                 data: dataResult.rows
             });
         } catch (error) {
-            console.error("ERROR CRÍTICO EN SQL:", error);
-            res.status(500).json({ error: "Error en la base de datos", details: error.message });
+            console.error("ERRO CRÍTICO NA QUERY:", error);
+            res.status(500).json({ error: "Erro no servidor", details: error.message });
+        } finally {
+            client.release();
         }
     },
-
-    // ... los demás métodos (getPropiedadById, createPropiedad, etc) se mantienen igual
+    // 2. Obtener por ID
     getPropiedadById: async (req, res) => {
         try {
             const { id } = req.params;
@@ -78,6 +70,7 @@ const controller = {
         }
     },
 
+    // 3. Crear
     createPropiedad: async (req, res) => {
         try {
             const { usuario_id, tipo_propiedad_id, referencia, titulo, precio, operacion, barrio } = req.body;
@@ -89,6 +82,7 @@ const controller = {
         }
     },
 
+    // 4. Actualizar
     updatePropiedad: async (req, res) => {
         try {
             const { id } = req.params;
@@ -100,6 +94,7 @@ const controller = {
         }
     },
 
+    // 5. Eliminar
     deletePropiedad: async (req, res) => {
         try {
             const { id } = req.params;
