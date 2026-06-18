@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { PropiedadService } from '../services/api';
+import PropiedadCard from '../components/PropiedadCard';
 
 export default function ClientApp() {
   const [propiedades, setPropiedades] = useState([]);
@@ -14,7 +15,6 @@ export default function ClientApp() {
   const fetchPropiedades = useCallback(async () => {
     setLoading(true);
     
-    // Criamos um objeto apenas com parâmetros válidos
     const params = { page: currentPage };
     if (titulo.trim()) params.search = titulo;
     if (operacion !== 'Todos') params.operacion = operacion;
@@ -33,7 +33,6 @@ export default function ClientApp() {
     }
   }, [currentPage, operacion, precioMax, titulo, barrio]);
 
-  // AQUI ESTAVA A FALHA: O useEffect garante que a busca ocorra ao mudar filtros
   useEffect(() => {
     fetchPropiedades();
   }, [fetchPropiedades]);
@@ -42,6 +41,7 @@ export default function ClientApp() {
     <div className="max-w-7xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Nuestras Propiedades</h1>
       
+      {/* Filtros */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-gray-50 p-6 rounded-xl">
         <input 
           type="text" 
@@ -64,27 +64,27 @@ export default function ClientApp() {
         </select>
 
         <select className="p-3 border rounded" value={barrio} onChange={(e) => {setBarrio(e.target.value); setCurrentPage(1);}}>
-  <option value="Todos">Todos os bairros</option>
-  <option value="Sarrià">Sarrià</option>
-  <option value="Gràcia">Gràcia</option> 
-</select>
+          <option value="Todos">Todos os bairros</option>
+          <option value="Sarrià">Sarrià</option>
+          <option value="Gràcia">Gràcia</option> 
+        </select>
       </div>
 
+      {/* Resultados */}
       {loading ? (
-        <p>Carregando...</p>
+        <div className="text-center py-10 text-gray-500">Carregando...</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {propiedades.length > 0 ? (
-            propiedades.map(p => (
-              <div key={p.id} className="border p-4 rounded shadow">
-                <h3 className="font-bold">{p.titulo}</h3>
-                <p className="text-indigo-600 font-black">{Number(p.precio).toLocaleString('de-DE')} €</p>
-              </div>
-            ))
-          ) : (
-            <p>Nenhuma propriedade encontrada.</p>
-          )}
-        </div>
+        propiedades.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {propiedades.map(p => (
+              <PropiedadCard key={p.id} propiedad={p} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-10 text-gray-500">
+            Nenhuma propriedade encontrada com esses filtros.
+          </div>
+        )
       )}
     </div>
   );
